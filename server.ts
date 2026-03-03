@@ -4,6 +4,7 @@ import { createServer as createViteServer } from "vite";
 import path from "path";
 import { DataSource, Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from "typeorm";
 import dotenv from "dotenv";
+import cors from "cors";
 
 dotenv.config();
 
@@ -36,19 +37,22 @@ export class Project {
 }
 
 // Initialize TypeORM Database Connection
+const isLocal = !process.env.DATABASE_URL || process.env.DATABASE_URL.includes("localhost");
+
 const AppDataSource = new DataSource({
   type: "postgres",
   url: process.env.DATABASE_URL,
   synchronize: true, // Auto-create tables (warning: use migrations in production)
   logging: false,
   entities: [Project],
-  ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false
+  ssl: isLocal ? false : { rejectUnauthorized: false }
 });
 
 async function startServer() {
   const app = express();
   const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 
+  app.use(cors());
   app.use(express.json());
 
   try {
