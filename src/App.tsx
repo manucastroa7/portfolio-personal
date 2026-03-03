@@ -78,6 +78,7 @@ const TECH_ICONS: Record<string, { icon: React.ReactNode, color: string, bg: str
 export default function App() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [errorDetails, setErrorDetails] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedGallery, setSelectedGallery] = useState<{ project: Project; index: number } | null>(null);
   const [formData, setFormData] = useState({
@@ -98,10 +99,12 @@ export default function App() {
   const fetchProjects = async () => {
     try {
       const res = await fetch(`${API_URL}/api/projects`);
+      if (!res.ok) throw new Error(`HTTP Error ${res.status}`);
       const data = await res.json();
       setProjects(data);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error fetching projects:', err);
+      setErrorDetails(`Error de Red. Frontend intentó conectar con: "${API_URL}/api/projects". Mensaje: ${err.message}. Revisa la pestaña de "Network" (Red) en F12 para ver si fue bloqueado por CORS o Mixed Content.`);
     } finally {
       setLoading(false);
     }
@@ -146,12 +149,6 @@ export default function App() {
             <a href="#about" className="hover:text-brand-primary transition-colors">Sobre mí</a>
             <a href="#contact" className="hover:text-brand-primary transition-colors">Contacto</a>
           </div>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest bg-white/10 px-4 py-2 rounded-full hover:bg-white/20 transition-all"
-          >
-            <Plus size={14} /> Nuevo Proyecto
-          </button>
         </div>
       </nav>
 
@@ -324,6 +321,13 @@ export default function App() {
               <p className="text-slate-400">Una selección de mis trabajos más recientes.</p>
             </div>
           </div>
+
+          {errorDetails && (
+            <div className="mb-12 p-6 glass rounded-2xl bg-red-500/10 border-red-500/20 text-red-200">
+              <h3 className="text-xl font-bold mb-2 flex items-center gap-2">⚠️ Error Cargando Proyectos</h3>
+              <p className="font-mono text-sm">{errorDetails}</p>
+            </div>
+          )}
 
           {loading ? (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
