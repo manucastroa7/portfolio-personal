@@ -1,56 +1,99 @@
+import "reflect-metadata";
 import express from "express";
 import { createServer as createViteServer } from "vite";
-import Database from "better-sqlite3";
 import path from "path";
+import { DataSource, Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from "typeorm";
+import dotenv from "dotenv";
 
-const db = new Database("portfolio.db");
+dotenv.config();
 
-// Initialize database
-db.exec(`
-  CREATE TABLE IF NOT EXISTS projects (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT NOT NULL,
-    description TEXT NOT NULL,
-    image_url TEXT,
-    images TEXT,
-    tags TEXT,
-    project_url TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  )
-`);
+// Define the Project Entity
+@Entity("projects")
+export class Project {
+  @PrimaryGeneratedColumn()
+  id!: number;
+
+  @Column()
+  title!: string;
+
+  @Column()
+  description!: string;
+
+  @Column({ nullable: true })
+  image_url!: string;
+
+  @Column("json", { nullable: true })
+  images!: string[];
+
+  @Column({ nullable: true })
+  tags!: string;
+
+  @Column({ nullable: true })
+  project_url!: string;
+
+  @CreateDateColumn()
+  created_at!: Date;
+}
+
+// Initialize TypeORM Database Connection
+const AppDataSource = new DataSource({
+  type: "postgres",
+  url: process.env.DATABASE_URL,
+  synchronize: true, // Auto-create tables (warning: use migrations in production)
+  logging: false,
+  entities: [Project],
+  ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false
+});
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 
   app.use(express.json());
 
+  try {
+    await AppDataSource.initialize();
+    console.log("Database connected successfully");
+  } catch (err) {
+    console.error("Error connecting to the database:", err);
+    process.exit(1);
+  }
+
+  const projectRepository = AppDataSource.getRepository(Project);
+
   // API Routes
-  app.get("/api/projects", (req, res) => {
+  app.get("/api/projects", async (req, res) => {
     try {
-      const projects = db.prepare("SELECT * FROM projects ORDER BY created_at DESC").all().map((p: any) => ({
-        ...p,
-        images: p.images ? JSON.parse(p.images) : []
-      }));
+      const projects = await projectRepository.find({
+        order: { created_at: "DESC" }
+      });
       res.json(projects);
     } catch (error) {
+      console.error("Fetch projects error:", error);
       res.status(500).json({ error: "Failed to fetch projects" });
     }
   });
 
-  app.post("/api/projects", (req, res) => {
+  app.post("/api/projects", async (req, res) => {
     const { title, description, image_url, images, tags, project_url } = req.body;
     if (!title || !description) {
       return res.status(400).json({ error: "Title and description are required" });
     }
 
     try {
-      const imagesJson = JSON.stringify(images || []);
-      const info = db.prepare(
-        "INSERT INTO projects (title, description, image_url, images, tags, project_url) VALUES (?, ?, ?, ?, ?, ?)"
-      ).run(title, description, image_url, imagesJson, tags, project_url);
-      res.json({ id: info.lastInsertRowid, message: "Project added successfully" });
+      const newProject = projectRepository.create({
+        title,
+        description,
+        image_url,
+        images: images || [],
+        tags,
+        project_url
+      });
+
+      const saved = await projectRepository.save(newProject);
+      res.json({ id: saved.id, message: "Project added successfully" });
     } catch (error) {
+      console.error("Save project error:", error);
       res.status(500).json({ error: "Failed to add project" });
     }
   });

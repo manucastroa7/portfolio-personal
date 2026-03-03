@@ -1,9 +1,18 @@
-import Database from "better-sqlite3";
+import "reflect-metadata";
+import { DataSource } from "typeorm";
+import { Project } from "./server.js"; // use .js for executing via tsx
+import dotenv from "dotenv";
 
-const db = new Database("portfolio.db");
+dotenv.config();
 
-// Clear existing projects to avoid duplicates during development/testing
-db.exec("DELETE FROM projects");
+const AppDataSource = new DataSource({
+    type: "postgres",
+    url: process.env.DATABASE_URL,
+    synchronize: true, // Auto-create tables (warning: use migrations in production)
+    logging: false,
+    entities: [Project],
+    ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false
+});
 
 const projects = [
     {
@@ -87,20 +96,28 @@ const projects = [
     }
 ];
 
-const insert = db.prepare(
-    "INSERT INTO projects (title, description, image_url, images, tags, project_url) VALUES (?, ?, ?, ?, ?, ?)"
-);
+async function seed() {
+    try {
+        await AppDataSource.initialize();
+        console.log("Database connected successfully. Seeding...");
 
-for (const project of projects) {
-    insert.run(
-        project.title,
-        project.description,
-        project.image_url,
-        JSON.stringify(project.images),
-        project.tags,
-        project.project_url
-    );
+        const projectRepository = AppDataSource.getRepository(Project);
+
+        // Clear existing projects to avoid duplicates during development/testing
+        await projectRepository.clear();
+        console.log("Cleared existing projects");
+
+        for (const projectData of projects) {
+            const project = projectRepository.create(projectData);
+            await projectRepository.save(project);
+        }
+
+        console.log("Database seeded successfully!");
+    } catch (err) {
+        console.error("Error during seeding:", err);
+    } finally {
+        await AppDataSource.destroy();
+    }
 }
 
-console.log("Database seeded successfully!");
-db.close();
+seed();
