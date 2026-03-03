@@ -12,6 +12,7 @@ db.exec(`
     title TEXT NOT NULL,
     description TEXT NOT NULL,
     image_url TEXT,
+    images TEXT,
     tags TEXT,
     project_url TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -27,7 +28,10 @@ async function startServer() {
   // API Routes
   app.get("/api/projects", (req, res) => {
     try {
-      const projects = db.prepare("SELECT * FROM projects ORDER BY created_at DESC").all();
+      const projects = db.prepare("SELECT * FROM projects ORDER BY created_at DESC").all().map((p: any) => ({
+        ...p,
+        images: p.images ? JSON.parse(p.images) : []
+      }));
       res.json(projects);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch projects" });
@@ -35,15 +39,16 @@ async function startServer() {
   });
 
   app.post("/api/projects", (req, res) => {
-    const { title, description, image_url, tags, project_url } = req.body;
+    const { title, description, image_url, images, tags, project_url } = req.body;
     if (!title || !description) {
       return res.status(400).json({ error: "Title and description are required" });
     }
 
     try {
+      const imagesJson = JSON.stringify(images || []);
       const info = db.prepare(
-        "INSERT INTO projects (title, description, image_url, tags, project_url) VALUES (?, ?, ?, ?, ?)"
-      ).run(title, description, image_url, tags, project_url);
+        "INSERT INTO projects (title, description, image_url, images, tags, project_url) VALUES (?, ?, ?, ?, ?, ?)"
+      ).run(title, description, image_url, imagesJson, tags, project_url);
       res.json({ id: info.lastInsertRowid, message: "Project added successfully" });
     } catch (error) {
       res.status(500).json({ error: "Failed to add project" });

@@ -11,6 +11,10 @@
   --color-brand-light: #F8FAFC; /* Slate 50 */
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 @layer base {
   body {
     @apply bg-brand-dark text-brand-light font-sans antialiased;

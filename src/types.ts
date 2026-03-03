@@ -3,6 +3,7 @@ export interface Project {
   title: string;
   description: string;
   image_url: string;
+  images: string[];
   tags: string;
   project_url: string;
   created_at: string;
