@@ -10,28 +10,28 @@ dotenv.config();
 // Define the Project Entity
 @Entity("projects")
 export class Project {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn("increment")
   id!: number;
 
-  @Column()
+  @Column({ type: "varchar" })
   title!: string;
 
-  @Column()
+  @Column({ type: "text" })
   description!: string;
 
-  @Column({ nullable: true })
+  @Column({ type: "varchar", nullable: true })
   image_url!: string;
 
-  @Column("json", { nullable: true })
+  @Column({ type: "json", nullable: true })
   images!: string[];
 
-  @Column({ nullable: true })
+  @Column({ type: "varchar", nullable: true })
   tags!: string;
 
-  @Column({ nullable: true })
+  @Column({ type: "varchar", nullable: true })
   project_url!: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: "timestamp" })
   created_at!: Date;
 }
 
