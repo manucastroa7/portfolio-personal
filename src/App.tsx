@@ -190,7 +190,6 @@ export default function App() {
                 <Download size={14} className="text-[#FFFF00] opacity-50 group-hover:opacity-100 group-hover:translate-y-0.5 transition-all" />
               </a>
               <div className="flex gap-4 items-center md:ml-4">
-                <a href="https://github.com/manucastroa7/" target="_blank" rel="noopener noreferrer" className="p-3 glass rounded-full hover:text-brand-primary transition-all"><Github size={20} /></a>
                 <a href="https://www.linkedin.com/in/manucastroa7/" target="_blank" rel="noopener noreferrer" className="p-3 glass rounded-full hover:text-brand-primary transition-all"><Linkedin size={20} /></a>
               </div>
             </div>
@@ -367,14 +366,6 @@ export default function App() {
                   <div className="p-8 flex flex-col flex-grow">
                     <div className="flex justify-between items-start mb-4">
                       <h3 className="text-2xl font-bold text-white group-hover:text-brand-primary transition-colors">{project.title}</h3>
-                      <a
-                        href={project.project_url || "#"}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-3 glass rounded-xl text-brand-primary hover:bg-brand-primary hover:text-white transition-all flex-shrink-0 ml-4"
-                      >
-                        <ExternalLink size={18} />
-                      </a>
                     </div>
 
                     <p className="text-sm text-slate-300 mb-6 leading-relaxed whitespace-pre-line flex-grow">
@@ -497,7 +488,6 @@ export default function App() {
               <Mail size={20} /> Hablemos ahora
             </a>
             <div className="flex gap-6">
-              <a href="https://github.com/manucastroa7/" target="_blank" rel="noopener noreferrer" className="opacity-50 hover:opacity-100 transition-all"><Github /></a>
               <a href="https://www.linkedin.com/in/manucastroa7/" target="_blank" rel="noopener noreferrer" className="opacity-50 hover:opacity-100 transition-all"><Linkedin /></a>
             </div>
             <div className="mt-12 text-xs opacity-30 uppercase tracking-[0.2em]">

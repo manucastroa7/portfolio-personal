@@ -36,7 +36,7 @@ const projects = [
             "/heroes-responsive-2.png"
         ],
         tags: "React, TypeScript, Tailwind, Node.js, PostgreSQL",
-        project_url: "https://heroes-cercanos-rho.vercel.app/"
+        project_url: ""
     },
     {
         title: "ORAU - Orgullo Austral",
@@ -54,7 +54,7 @@ const projects = [
             "/orau-9.png"
         ],
         tags: "React, NestJS, PostgreSQL, TypeORM, Cloudinary",
-        project_url: "https://github.com/manucastroa7/orau-frontend"
+        project_url: ""
     },
     {
         title: "Sistema de Gestión de Reservas",
@@ -75,7 +75,7 @@ const projects = [
             "/sistema-reservas-13.png"
         ],
         tags: "React, Vite, Tailwind CSS, Lucide React, date-fns",
-        project_url: "https://github.com/manucastroa7/sistemaReservas-front"
+        project_url: ""
     },
     {
         title: "Agent Sport - Gestión de Talentos",
@@ -92,7 +92,7 @@ const projects = [
             "/agentsport-9.png"
         ],
         tags: "React 19, NestJS, Tailwind 4, Shadcn UI, Zustand, Framer Motion",
-        project_url: "https://github.com/manucastroa7/agentesRepresentacion"
+        project_url: ""
     }
 ];
 
